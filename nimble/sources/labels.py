@@ -17,22 +17,29 @@ class TransformMatrixSource(SeekableSource):
         self.cached = True
 
         self._filename = filename
-        self.values = []
+        self.values = None
         self._load()
         super(TransformMatrixSource, self).__init__(name=u"TransformMatrixSource", **kwargs)
 
     def _load(self):
+        self._dtype = np.float32
+        v = []
         with open(self._filename, 'r') as f:
             for line in f.readlines():
-                transform = np.fromstring(line, dtype=np.float32, sep=' ')
+                transform = np.fromstring(line, dtype=self._dtype, sep=' ')
                 transform = transform.reshape(3, 4)
                 transform = np.vstack((transform, [0, 0, 0, 1]))
-                self.values.append(transform)
-        self._size = len(self.values)
+                v.append(transform)
+        self._size = len(v)
         self._shape = (4, 4)
+        self.values = np.vstack(v)
 
-    def get_data_at(self, position):
+    def _get_data_at(self, position):
         return self.values[position]
+
+    @property
+    def dtype(self):
+        return self._dtype
 
 
 class ValueFromTxtSource(SeekableSource):
@@ -43,16 +50,22 @@ class ValueFromTxtSource(SeekableSource):
         self.cached = True
 
         self._filename = filename
-        self.values = []
+        self.values = None
         self._load()
         super(ValueFromTxtSource, self).__init__(name=u"ValueFromTxtSource", **kwargs)
 
     def _load(self):
+        v = []
         with open(self._filename, 'r') as f:
             for line in f.readlines():
-                self.values.append(float(line))
-        self._size = len(self.values)
+                v.append(float(line))
+        self._size = len(v)
+        self.values = np.asarray(v)
         self._shape = (1,)
 
-    def get_data_at(self, position):
+    def _get_data_at(self, position):
         return self.values[position]
+
+    @property
+    def dtype(self):
+        return np.float32

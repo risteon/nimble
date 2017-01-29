@@ -22,7 +22,7 @@ class ImageFileSource(SeekableSource):
         self._check_files()
         super(ImageFileSource, self).__init__(name=u"ImageFileSource", **kwargs)
 
-    def get_data_at(self, position):
+    def _get_data_at(self, position):
         file = self._filename_func(position)
         im = imageio.imread(file)
         return im
@@ -30,7 +30,7 @@ class ImageFileSource(SeekableSource):
     def _check_files(self):
         # check how many continuously numbered images are available
         if self._size is None:
-            max_nb = 1e12
+            max_nb = int(1e12)
         else:
             max_nb = self._size
 
@@ -42,3 +42,15 @@ class ImageFileSource(SeekableSource):
             self._size = counter
         elif self._size < counter:
             raise RuntimeError("Not all image files were found.")
+
+        if self._size > 0:
+            image = self._get_data_at(0)
+            self._dtype = image.dtype
+            self._shape = image.shape
+        else:
+            self._dtype = None
+            self._shape = None
+
+    @property
+    def dtype(self):
+        return self._dtype
