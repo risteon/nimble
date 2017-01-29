@@ -13,12 +13,13 @@ class IntegerIdentitySource(SeekableSource):
         self.parallel_possible = True
         self.cached = True
         self._shape = 1,
+        self._dtype = np.uint32
         self._size = size
         super(IntegerIdentitySource, self).__init__(name=u"IntegerIdentitySource", **kwargs)
 
     def _get_data_at(self, position):
-        return np.array([position])
+        return np.array([position], dtype=self._dtype)
 
     @property
     def dtype(self):
-        return np.uint32
+        return self._dtype
