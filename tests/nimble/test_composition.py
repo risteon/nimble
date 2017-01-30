@@ -2,15 +2,15 @@ import pytest
 
 import numpy as np
 
-from nimble.sources import IntegerIdentitySource
+from nimble.sources import IntegerSource
 from nimble.composition import ConcatenateSource, VStackSource
 
 
 def test_concatenate_sources():
     nb_elements = 14
-    ints_a = IntegerIdentitySource(size=nb_elements)
-    ints_b = IntegerIdentitySource(size=nb_elements)
-    ints_c = IntegerIdentitySource(size=nb_elements)
+    ints_a = IntegerSource(stop=nb_elements)
+    ints_b = IntegerSource(stop=nb_elements)
+    ints_c = IntegerSource(stop=nb_elements)
 
     s = ConcatenateSource([ints_a, ints_b, ints_c])
     assert s.seekable
@@ -34,7 +34,7 @@ def test_concatenate_sources():
 
 def test_concatenate_same_source():
     nb_elements = 345
-    source = IntegerIdentitySource(size=nb_elements)
+    source = IntegerSource(stop=nb_elements)
     concat = ConcatenateSource([source, source])
     assert concat.size == 2*nb_elements
     assert concat.seekable
@@ -50,7 +50,7 @@ def test_concatenate_same_source():
 
 
 def test_vstack_source():
-    ints = IntegerIdentitySource()
+    ints = IntegerSource()
     dim_size = 8
     stacked = VStackSource(ints, dim_size)
     assert stacked.has_fixed_shape()

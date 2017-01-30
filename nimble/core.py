@@ -125,8 +125,8 @@ class Sink(with_metaclass(ABCMeta)):
 class Filter(Source, Sink):
     """Abstract base class for all filters."""
 
-    def __init__(self, **kwargs):
-        super(Filter, self).__init__(name=u"UnnamedFilter", **kwargs)
+    def __init__(self, name=u"UnnamedFilter", **kwargs):
+        super(Filter, self).__init__(name=name, **kwargs)
         self._cache_input = None
         self._cache_output = None
 

@@ -35,6 +35,6 @@ setup(
     ],
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    install_requires=['imageio', 'scipy', 'pillow', 'six'],
+    install_requires=['imageio', 'scipy', 'pillow', 'moviepy', 'six'],
     tests_require=['pytest'],
 )

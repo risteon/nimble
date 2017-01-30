@@ -1,20 +1,20 @@
 from __future__ import print_function
 
-import numpy as np
-
+from nimble.sources import IntegerSource
 from nimble.filters import Speedometer
-from nimble.sinks import ImageDisplaySink
+from nimble.sinks import ImageVideoSink
 
 
 def main():
 
-    speedo = Speedometer(0.0, 1.0)
-    sp = speedo.filter(np.asarray([0.5]))
+    ints = IntegerSource(start=0, stop=101)
+    speedo = Speedometer(0.0, 100.0)
+    sink = ImageVideoSink(fps=20)
 
-    # show image
-    display = ImageDisplaySink()
-    display.set_data(sp)
+    while ints.advance():
+        sink.set_data(speedo.filter(ints.get_data()))
 
+    sink.write()
 
 if __name__ == "__main__":
     main()

@@ -20,7 +20,7 @@ class Speedometer(Filter):
         self._image = Image.open(image_filename)
         self._shape = self._image.size + (4,)
         self._dtype = np.uint8
-        super(Speedometer, self).__init__(**kwargs)
+        super(Speedometer, self).__init__(name=u"SpeedometerFilter", **kwargs)
 
         self.min_value = min_value
         self.max_value = max_value
@@ -38,7 +38,8 @@ class Speedometer(Filter):
         h_e = math.sin(v) * radius + self._center_h
         w_e = math.cos(v) * radius + self._center_w
 
-        draw = ImageDraw.Draw(self._image)
-        draw.line((self._center_w, self._center_h, w_e, h_e), fill=(255, 0, 0, 128), width=20)
+        copy = self._image.copy()
+        draw = ImageDraw.Draw(copy)
+        draw.line((self._center_w, self._center_h, w_e, h_e), fill=(249, 155, 20, 255), width=20)
 
-        return np.asarray(self._image)
+        return np.asarray(copy)
