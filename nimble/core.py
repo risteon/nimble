@@ -18,9 +18,13 @@ class Source(with_metaclass(ABCMeta)):
             self.parallel_possible = False
         if not hasattr(self, 'cached'):
             self.cached = False
+
         # Shape can vary
         if not hasattr(self, '_shape'):
             self._shape = None
+        # Data can vary
+        if not hasattr(self, '_dtype'):
+            self._dtype = None
 
     def get_data(self):
         return self._get_data_impl()
@@ -34,9 +38,12 @@ class Source(with_metaclass(ABCMeta)):
         pass
 
     @property
-    @abstractmethod
     def dtype(self):
-        pass
+        """Get type of returned data
+
+        :return: data type. None if data can vary.
+        """
+        return self._dtype
 
     @property
     def shape(self):
@@ -95,7 +102,51 @@ class Sink(with_metaclass(ABCMeta)):
 
     def __init__(self, name=u"UnnamedSink", **kwargs):
         self.name = name
+        # Arbitrary input shape
+        if not hasattr(self, '_input_shape'):
+            self._input_shape = None
+        # Arbitrary input data
+        if not hasattr(self, '_input_dtype'):
+            self._input_dtype = None
 
     @abstractmethod
     def set_data(self, data):
+        pass
+
+    @property
+    def input_dtype(self):
+        return self._input_dtype
+
+    @property
+    def input_shape(self):
+        return self._input_shape
+
+
+class Filter(Source, Sink):
+    """Abstract base class for all filters."""
+
+    def __init__(self, **kwargs):
+        super(Filter, self).__init__(name=u"UnnamedFilter", **kwargs)
+        self._cache_input = None
+        self._cache_output = None
+
+    def set_data(self, data):
+        self._cache_input = data
+
+    def advance(self):
+        if self._cache_input is None:
+            return False
+        self._cache_output = self._filter_impl(self._cache_input)
+        return True
+
+    def _get_data_impl(self):
+        return self._cache_output
+
+    def filter(self, data):
+        self._cache_input = data
+        self.advance()
+        return self._cache_output
+
+    @abstractmethod
+    def _filter_impl(self, data):
         pass
