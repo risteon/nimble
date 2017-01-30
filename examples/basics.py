@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import sys
-from scipy import misc
 
 from nimble.sources import KittiOdometrySource
+from nimble.sinks import ImageDisplaySink
 
 
 def main():
@@ -20,8 +20,10 @@ def main():
     # print transform matrix
     print("Transform: ")
     print(label)
+
     # show image
-    misc.imshow(data)
+    display = ImageDisplaySink()
+    display.set_data(data)
 
 
 if __name__ == "__main__":

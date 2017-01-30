@@ -26,7 +26,7 @@ def transform_values():
 
 
 @pytest.fixture(scope="module")
-def test_image():
+def test_image_path():
     image_filename = os.path.join(os.path.dirname(__file__),
                                   os.path.pardir, u"resources", u"test_image.png")
 

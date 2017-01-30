@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from . import sources
 from . import composition
+from . import core
 from . import pipeline
 from . import utils
 from . import visualization

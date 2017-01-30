@@ -3,12 +3,12 @@ import pytest
 
 import os
 
-from nimble.test_utils import test_image
+from nimble.test_utils import test_image_path
 from nimble.sources import ImageFileSource
 
 
-def test_image_file_source(test_image):
-    filename, shape = test_image
+def test_image_file_source(test_image_path):
+    filename, shape = test_image_path
 
     def filename_func(position):
         if position == 0:
