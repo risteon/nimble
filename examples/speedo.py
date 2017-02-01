@@ -14,7 +14,7 @@ def main():
     while ints.advance():
         sink.set_data(speedo.filter(ints.get_data()))
 
-    sink.write()
+    sink.write(filename=u"/tmp/nimble_speedo.mp4")
 
 if __name__ == "__main__":
     main()

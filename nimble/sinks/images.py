@@ -25,9 +25,9 @@ class ImageVideoSink(Sink):
     def set_data(self, data):
         self._frames.append(data)
 
-    def write(self):
+    def write(self, filename):
         def make_frame(t):
             return self._frames[int(round(t*self._fps))][:, :, :3]
 
         animation = mpy.VideoClip(make_frame, duration=(len(self._frames)-1)/self._fps)
-        animation.write_videofile(u"/tmp/test.mp4", fps=self._fps, codec='mpeg4')
+        animation.write_videofile(filename, fps=self._fps, codec='mpeg4')
