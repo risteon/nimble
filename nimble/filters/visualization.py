@@ -11,7 +11,7 @@ from ..core import Filter
 
 
 class Speedometer(Filter):
-    def __init__(self, min_value, max_value, **kwargs):
+    def __init__(self, min_value=0.0, max_value=1.0, **kwargs):
         self._input_shape = 1,
         self._input_dtype = None
 
@@ -29,7 +29,7 @@ class Speedometer(Filter):
         self._center_h = self._shape[0] // 2 + 30
         self._center_w = self._shape[1] // 2
 
-    def _filter_impl(self, data):
+    def filter(self, data):
 
         zero = 2.617993878   # 5/6 PI
         v = (data[0] - self.min_value) / self._range * 4.188790205 + zero

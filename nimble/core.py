@@ -1,10 +1,18 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
+from __future__ import print_function
 
 from six import with_metaclass
 from abc import ABCMeta, abstractmethod
 
 
-class Source(with_metaclass(ABCMeta)):
+class DataSpec:
+    def __init__(self):
+        self.dtype = None
+        self.shape = None
+
+
+class Source(with_metaclass(ABCMeta, object)):
     """Abstract base class
     """
 
@@ -13,7 +21,7 @@ class Source(with_metaclass(ABCMeta)):
         # These properties should have been set
         # by the child class, as appropriate.
         if not hasattr(self, 'seekable'):
-            self.seekable = False
+            self._seekable = False
         if not hasattr(self, 'parallel_possible'):
             self.parallel_possible = False
         if not hasattr(self, 'cached'):
@@ -26,16 +34,20 @@ class Source(with_metaclass(ABCMeta)):
         if not hasattr(self, '_dtype'):
             self._dtype = None
 
-    def get_data(self):
-        return self._get_data_impl()
+        self._data = None
 
-    @abstractmethod
-    def _get_data_impl(self):
-        pass
+    def get_data(self):
+        return self._data
 
     @abstractmethod
     def advance(self):
         pass
+
+    @property
+    def seekable(self):
+        """"""
+
+        return self._seekable
 
     @property
     def dtype(self):
@@ -55,7 +67,7 @@ class Source(with_metaclass(ABCMeta)):
 
     @property
     def size(self):
-        if self.seekable:
+        if self._seekable:
             return self._size
         else:
             return None
@@ -70,15 +82,14 @@ class Source(with_metaclass(ABCMeta)):
 
 class SeekableSource(Source):
     def __init__(self, **kwargs):
-        self._cache = None
-        self.seekable = True
+        self._seekable = True
         super(SeekableSource, self).__init__(**kwargs)
         self.position = None
 
     def seek(self, position):
         if position >= self.size:
             return False
-        self._cache = self._get_data_at(position)
+        self._data = self._get_data_at(position)
         self.position = position
         return True
 
@@ -89,15 +100,12 @@ class SeekableSource(Source):
             p = self.position + 1
         return self.seek(p)
 
-    def _get_data_impl(self):
-        return self._cache
-
     @abstractmethod
     def _get_data_at(self, position):
         pass
 
 
-class Sink(with_metaclass(ABCMeta)):
+class Sink(with_metaclass(ABCMeta, object)):
     """Abstract base class for all sinks."""
 
     def __init__(self, name=u"UnnamedSink", **kwargs):
@@ -109,9 +117,16 @@ class Sink(with_metaclass(ABCMeta)):
         if not hasattr(self, '_input_dtype'):
             self._input_dtype = None
 
-    @abstractmethod
+    def __call__(self, stream):
+        return stream.apply_filter(self)
+
     def set_data(self, data):
         pass
+
+    def run_impl(self, stream):
+        """Default implementation: exhaust stream and do nothing with data."""
+        while stream.advance():
+            self.set_data(stream.get_data())
 
     @property
     def input_dtype(self):
@@ -122,31 +137,17 @@ class Sink(with_metaclass(ABCMeta)):
         return self._input_shape
 
 
-class Filter(Source, Sink):
+class Filter(with_metaclass(ABCMeta, object)):
     """Abstract base class for all filters."""
 
     def __init__(self, name=u"UnnamedFilter", **kwargs):
-        super(Filter, self).__init__(name=name, **kwargs)
-        self._cache_input = None
+        self._name = name
         self._cache_output = None
 
-    def set_data(self, data):
-        self._cache_input = data
-
-    def advance(self):
-        if self._cache_input is None:
-            return False
-        self._cache_output = self._filter_impl(self._cache_input)
-        return True
-
-    def _get_data_impl(self):
-        return self._cache_output
-
     def filter(self, data):
-        self._cache_input = data
-        self.advance()
-        return self._cache_output
+        """Default implementation: do nothing."""
 
-    @abstractmethod
-    def _filter_impl(self, data):
-        pass
+        return data
+
+    def __call__(self, stream):
+        return stream.apply_filter(self)

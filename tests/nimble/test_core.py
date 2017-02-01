@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 import pytest
 
 import numpy as np
 
-from nimble.core import Source, Sink
+from nimble.core import Source, Sink, Filter
 
 
 def test_source_sink():
@@ -24,3 +25,14 @@ def test_source_sink():
     assert a.get_data() == np.array([42])
     b.set_data(a.get_data())
     assert a.shape is None
+
+
+def test_connection():
+    filter = Filter()
+    sink = Sink()
+    sink.connect(filter)
+
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

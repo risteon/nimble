@@ -3,7 +3,9 @@ from . import filters
 from . import sources
 from . import composition
 from . import core
-from . import pipeline
+from . import graph
+from . import preprocessing
+from . import streaming
 from . import utils
 from . import visualization
 

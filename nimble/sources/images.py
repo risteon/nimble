@@ -23,8 +23,8 @@ class ImageFileSource(SeekableSource):
         super(ImageFileSource, self).__init__(name=u"ImageFileSource", **kwargs)
 
     def _get_data_at(self, position):
-        file = self._filename_func(position)
-        im = imageio.imread(file)
+        img_file = self._filename_func(position)
+        im = imageio.imread(img_file)
         return im
 
     def _check_files(self):

@@ -17,17 +17,17 @@ class ImageDisplaySink(Sink):
 
 
 class ImageVideoSink(Sink):
-    def __init__(self, fps=2, name=u"UnnamedVideoSink"):
+    """Example for a sink that can only be used with run() and a seekable source."""
+
+    def __init__(self, fps=2, filename=u"/tmp/nimble_video.mp4", name=u"UnnamedVideoSink"):
         super(ImageVideoSink, self).__init__(name=name)
         self._fps = fps
-        self._frames = []
+        self.filename = filename
 
-    def set_data(self, data):
-        self._frames.append(data)
-
-    def write(self, filename):
+    def run_impl(self, stream):
         def make_frame(t):
-            return self._frames[int(round(t*self._fps))][:, :, :3]
+            stream.seek(int(round(t*self._fps)))
+            return stream.get_data()[:, :, :3]
 
-        animation = mpy.VideoClip(make_frame, duration=(len(self._frames)-1)/self._fps)
-        animation.write_videofile(filename, fps=self._fps, codec='mpeg4')
+        animation = mpy.VideoClip(make_frame, duration=(stream.size-1)/self._fps)
+        animation.write_videofile(self.filename, fps=self._fps, codec='mpeg4')

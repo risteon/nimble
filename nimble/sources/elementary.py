@@ -27,17 +27,13 @@ class IntegerSource(SeekableSource):
 class UniformRandomSource(Source):
     """Random values in a given shape."""
 
-    def __init__(self, shape, name=u"", **kwargs):
+    def __init__(self, shape=(1,), name=u"", **kwargs):
         self.parallel_possible = True
         self.cached = False
         self._shape = shape
         self._dtype = np.float64
-        self._cache = None
         super(UniformRandomSource, self).__init__(name=name, **kwargs)
 
-    def _get_data_impl(self):
-        return self._cache
-
     def advance(self):
-        self._cache = np.random.rand(self._shape)
+        self._data = np.random.random_sample(self._shape)
         return True
