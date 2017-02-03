@@ -5,7 +5,7 @@ from __future__ import division
 from scipy import misc
 import moviepy.editor as mpy
 
-from ..core import Sink
+from ..core import Sink, ControllingSink
 
 
 class ImageDisplaySink(Sink):
@@ -16,7 +16,7 @@ class ImageDisplaySink(Sink):
         misc.imshow(data)
 
 
-class ImageVideoSink(Sink):
+class ImageVideoSink(ControllingSink):
     """Example for a sink that can only be used with run() and a seekable source."""
 
     def __init__(self, fps=2, filename=u"/tmp/nimble_video.mp4", name=u"UnnamedVideoSink"):
@@ -24,7 +24,7 @@ class ImageVideoSink(Sink):
         self._fps = fps
         self.filename = filename
 
-    def run_impl(self, stream):
+    def run(self, stream):
         def make_frame(t):
             stream.seek(int(round(t*self._fps)))
             return stream.get_data()[:, :, :3]

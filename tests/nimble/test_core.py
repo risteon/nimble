@@ -9,10 +9,8 @@ from nimble.core import Source, Sink, Filter
 def test_source_sink():
 
     class A(Source):
-        def _get_data_impl(self):
-            return np.array([42], dtype=np.int32)
-
         def advance(self):
+            self._data = np.array([42], dtype=np.int32)
             return True
 
     class B(Sink):
@@ -25,13 +23,6 @@ def test_source_sink():
     assert a.get_data() == np.array([42])
     b.set_data(a.get_data())
     assert a.shape is None
-
-
-def test_connection():
-    filter = Filter()
-    sink = Sink()
-    sink.connect(filter)
-
 
 
 if __name__ == '__main__':

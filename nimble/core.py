@@ -121,12 +121,9 @@ class Sink(with_metaclass(ABCMeta, object)):
         return stream.apply_filter(self)
 
     def set_data(self, data):
-        pass
+        """Non master sinks are controlled externally using set data."""
 
-    def run_impl(self, stream):
-        """Default implementation: exhaust stream and do nothing with data."""
-        while stream.advance():
-            self.set_data(stream.get_data())
+        pass
 
     @property
     def input_dtype(self):
@@ -135,6 +132,38 @@ class Sink(with_metaclass(ABCMeta, object)):
     @property
     def input_shape(self):
         return self._input_shape
+
+
+class ControllingSink(Sink):
+    """"""
+
+    def __init__(self, name=u"UnnamedMasterSink", **kwargs):
+        super(ControllingSink, self).__init__(name=name, **kwargs)
+
+    @abstractmethod
+    def run(self, stream):
+        """A controlling sink controls the data flow.
+
+        This methods gets called by the flow graph.
+        """
+        pass
+
+
+class MasterSinkWrapper(ControllingSink):
+    """This wraps a normal sink to make it a controlling sink.
+
+    The flow graph uses this if no controlling sink is otherwise available.
+    """
+
+    def __init__(self, sink_to_wrap, **kwargs):
+        self._sink = sink_to_wrap
+        super(MasterSinkWrapper, self).__init__(**kwargs)
+
+    def run(self, stream):
+        """Implementation: exhaust stream and pass data to sink."""
+
+        while stream.advance():
+            self._sink.set_data(stream.get_data())
 
 
 class Filter(with_metaclass(ABCMeta, object)):
